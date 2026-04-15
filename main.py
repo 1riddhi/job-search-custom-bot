@@ -55,7 +55,7 @@ if __name__ == "__main__":
         run_once()
         raise SystemExit(0)
 
-    cron_expr = (os.environ.get("JOB_CRON") or "*/2 * * * *").strip()
+    cron_expr = (os.environ.get("JOB_CRON") or "0 */6 * * *").strip()
     trigger = CronTrigger.from_crontab(cron_expr)
 
     scheduler = BlockingScheduler()
