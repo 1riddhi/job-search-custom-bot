@@ -11,3 +11,5 @@ jobs.json
 
 # mac
 .DS_Store
+
+.replit
