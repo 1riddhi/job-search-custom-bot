@@ -1,0 +1,13 @@
+# secrets
+.env
+
+# python env
+venv/
+__pycache__/
+*.pyc
+
+# runtime data
+jobs.json
+
+# mac
+.DS_Store
