@@ -1,6 +1,11 @@
 import requests
-from config import HEADERS
+from datetime import datetime
+import time
+import re
+
+from config import HEADERS, MAX_HOURS
 from filters import is_role, is_india, extract_yoe
+
 
 def fetch_greenhouse(company, board):
     try:
@@ -17,14 +22,33 @@ def fetch_greenhouse(company, board):
     jobs = []
 
     for j in data.get("jobs", []):
-        if is_role(j.get("title")) and is_india(j.get("location", {}).get("name")):
-            jobs.append({
-                "id": j["id"],
-                "title": j["title"],
-                "company": company,
-                "location": j.get("location", {}).get("name"),
-                "link": j.get("absolute_url"),
-                "yoe": extract_yoe(j.get("content", ""))
-            })
+        title = j.get("title", "")
+        location = j.get("location", {}).get("name", "")
+
+        if not is_role(title):
+            continue
+
+        if not is_india(location):
+            continue
+
+        # optional time filter
+        updated = j.get("updated_at") or j.get("created_at")
+        if updated:
+            try:
+                ts = time.mktime(datetime.strptime(updated[:19], "%Y-%m-%dT%H:%M:%S").timetuple())
+                age_hours = (time.time() - ts) / 3600
+                if age_hours > MAX_HOURS:
+                    continue
+            except:
+                pass
+
+        jobs.append({
+            "id": j["id"],
+            "title": title,
+            "company": company,
+            "location": location,
+            "link": j.get("absolute_url"),
+            "yoe": extract_yoe(j.get("content", ""))
+        })
 
     return jobs

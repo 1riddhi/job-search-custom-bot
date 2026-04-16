@@ -1,33 +1,52 @@
 import re
-from config import KEYWORDS, BAD_KEYWORDS, INDIA_LOCATIONS
+from config import BAD_KEYWORDS, INDIA_LOCATIONS
 
-def norm(x):
-    return (x or "").lower()
 
-def is_india(text):
-    t = norm(text)
-    return any(k in t for k in INDIA_LOCATIONS)
+def is_role(title: str) -> bool:
+    if not title:
+        return False
 
-def is_bad_role(title):
-    t = norm(title)
-    return any(k in t for k in BAD_KEYWORDS)
+    t = title.lower()
+    t = re.sub(r"[^a-z0-9\s]", " ", t)
+    t = re.sub(r"\s+", " ", t)
 
-def is_role(title):
-    t = norm(title)
-    return any(k in t for k in KEYWORDS) and not is_bad_role(title)
+    for bad in BAD_KEYWORDS:
+        if bad in t:
+            return False
 
-def extract_yoe(text):
+    return True
+
+
+def is_india(location) -> bool:
+    if not location:
+        return False
+
+    loc = str(location).lower()
+    return any(x in loc for x in INDIA_LOCATIONS)
+
+
+def extract_yoe(text: str):
     if not text:
-        return "Not specified"
+        return None
+
+    text = text.lower()
 
     patterns = [
-        r"\d+\+?\s*years?",
-        r"\d+\s*-\s*\d+\s*years?"
+        r"(\d+)\+?\s*years?\s*(?:of experience)?",
+        r"(\d+)\+?\s*yrs?",
+        r"(\d+)\+?\s*years?\s*experience",
+        r"at least\s*(\d+)\s*years?",
+        r"minimum\s*(\d+)\s*years?",
+        r"(\d+)\s*to\s*(\d+)\s*years?",
+        r"(\d+)\+?\s*years?\s*in",
+        r"(\d+)\+?\s*years?\s*working",
+        r"(\d+)\+?\s*years?\s*professional",
+        r"(\d+)\s*\+\s*years?"
     ]
 
     for p in patterns:
-        m = re.search(p, text.lower())
+        m = re.search(p, text)
         if m:
-            return m.group(0)
+            return int(m.group(1))
 
-    return "Not specified"
+    return None
