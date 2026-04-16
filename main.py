@@ -11,6 +11,7 @@ from fetchers.amazon import fetch_amazon
 from fetchers.greenhouse import fetch_greenhouse
 from fetchers.postman import fetch_postman
 from fetchers.microsoft import fetch_microsoft
+from fetchers.uber import fetch_uber
 from utils.discord import send
 from utils.storage import load_seen, save_seen
 from config import GREENHOUSE_COMPANIES
@@ -35,7 +36,8 @@ def run_once():
     all_jobs = []
 
     # Fetch all sources
-    all_jobs += fetch_amazon()
+    all_jobs += fetch_uber()
+    # all_jobs += fetch_amazon()
     # all_jobs += fetch_microsoft()
 
     for company, board in GREENHOUSE_COMPANIES:
